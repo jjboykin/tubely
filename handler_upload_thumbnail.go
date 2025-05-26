@@ -3,7 +3,11 @@ package main
 import (
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/bootdotdev/learn-file-storage-s3-golang-starter/internal/auth"
 	"github.com/google/uuid"
@@ -34,20 +38,22 @@ func (cfg *apiConfig) handlerUploadThumbnail(w http.ResponseWriter, r *http.Requ
 	const maxMemory = 10 << 20
 	r.ParseMultipartForm(maxMemory)
 
-	file, header, err := r.FormFile("thumbnail")
+	srcFile, header, err := r.FormFile("thumbnail")
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Unable to parse form file", err)
 		return
 	}
-	defer file.Close()
+	defer srcFile.Close()
 
 	contentType := header.Header.Get("Content-Type")
 
-	imageData, err := io.ReadAll(file)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Unable to read image data", err)
-		return
-	}
+	/*
+		imageData, err := io.ReadAll(srcFile)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, "Unable to read image data", err)
+			return
+		}
+	*/
 
 	video, err := cfg.db.GetVideo(videoID)
 	if err != nil {
@@ -60,15 +66,23 @@ func (cfg *apiConfig) handlerUploadThumbnail(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	thumbnail := thumbnail{
-		data:      imageData,
-		mediaType: contentType,
+	extensions, err := mime.ExtensionsByType(contentType)
+	if err != nil || len(extensions) == 0 {
+		respondWithError(w, http.StatusBadRequest, "Invalid content type", err)
 	}
+	ext := strings.TrimPrefix(extensions[0], ".")
 
-	videoThumbnails[videoID] = thumbnail
+	fileName := fmt.Sprintf("%s.%s", videoID, ext)
+	filePath := filepath.Join(cfg.assetsRoot, fileName)
 
-	thumbURL := fmt.Sprintf("http://localhost:%s/api/thumbnails/{%s}", cfg.port, videoID)
-	video.ThumbnailURL = &thumbURL
+	dstFile, err := os.Create(filePath)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Error creating file", err)
+	}
+	io.Copy(dstFile, srcFile)
+
+	imageURL := fmt.Sprintf("http://localhost:%s/%s", cfg.port, filePath)
+	video.ThumbnailURL = &imageURL
 
 	err = cfg.db.UpdateVideo(video)
 	if err != nil {
