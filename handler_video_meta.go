@@ -1,13 +1,23 @@
 package main
 
 import (
+	//"bytes"
 	"encoding/json"
+	//"log"
+	//"os/exec"
 	"net/http"
 
 	"github.com/bootdotdev/learn-file-storage-s3-golang-starter/internal/auth"
 	"github.com/bootdotdev/learn-file-storage-s3-golang-starter/internal/database"
 	"github.com/google/uuid"
 )
+
+/*
+type videoDimensions struct {
+	width  int
+	height int
+}
+*/
 
 func (cfg *apiConfig) handlerVideoMetaCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
@@ -118,3 +128,25 @@ func (cfg *apiConfig) handlerVideosRetrieve(w http.ResponseWriter, r *http.Reque
 
 	respondWithJSON(w, http.StatusOK, videos)
 }
+
+/*
+func getVideoAspectRatio(filePath string) (string, error) {
+
+	cmd := exec.Command("ffprobe", "-v", "error", "-print_format", "json", "-show_streams", " https://tubely-11403.s3.us-east-2.amazonaws.com/ju4mL46dW9zLYVdZwUo-8rNuwtGjndT-04vZip3hJxM.mp4")
+
+	var b bytes.Buffer
+	cmd.Stdout = &b
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	 var characters []Character
+    if err := json.Unmarshal(b.Bytes(), &characters); err != nil {
+        log.Fatalf("Error unmarshalling JSON: %v", err)
+    }
+
+    for _, character := range characters {
+        fmt.Printf("%s, age %d, wields a %s\n", character.Name, character.Age, character.Weapon)
+    }
+}*/
