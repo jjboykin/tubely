@@ -27,13 +27,6 @@ type apiConfig struct {
 	s3CfDistribution string
 }
 
-/*
-type thumbnail struct {
-	data      []byte
-	mediaType string
-}
-*/
-
 func main() {
 	godotenv.Load(".env")
 
