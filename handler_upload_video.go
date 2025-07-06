@@ -24,7 +24,7 @@ import (
 
 func (cfg *apiConfig) handlerUploadVideo(w http.ResponseWriter, r *http.Request) {
 	const maxMemory = 10 << 30
-	const delimiter = ","
+	//const delimiter = ","
 	//maxReader := http.MaxBytesReader(nil, r.Body, int64(maxMemory))
 
 	videoIDString := r.PathValue("videoID")
