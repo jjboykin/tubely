@@ -1,7 +1,7 @@
 package main
 
 import (
-	"context"
+	//"context"
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
@@ -10,13 +10,15 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"strings"
-	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
+	//"strings"
+	//"time"
+
+	//"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bootdotdev/learn-file-storage-s3-golang-starter/internal/auth"
-	"github.com/bootdotdev/learn-file-storage-s3-golang-starter/internal/database"
+
+	//"github.com/bootdotdev/learn-file-storage-s3-golang-starter/internal/database"
 	"github.com/google/uuid"
 )
 
@@ -118,7 +120,8 @@ func (cfg *apiConfig) handlerUploadVideo(w http.ResponseWriter, r *http.Request)
 	})
 
 	//videoURL := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", cfg.s3Bucket, cfg.s3Region, fileKey)
-	videoURL := fmt.Sprintf("%s%s%s", cfg.s3Bucket, delimiter, fileKey)
+	//videoURL := fmt.Sprintf("%s%s%s", cfg.s3Bucket, delimiter, fileKey)
+	videoURL := fmt.Sprintf("%s/%s", cfg.s3CfDistribution, fileKey)
 	fmt.Println(videoURL)
 	video.VideoURL = &videoURL
 
@@ -128,11 +131,13 @@ func (cfg *apiConfig) handlerUploadVideo(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	video, err = cfg.dbVideoToSignedVideo(video)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Unable to locate video record", err)
-		return
-	}
+	/*
+		video, err = cfg.dbVideoToSignedVideo(video)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Unable to locate video record", err)
+			return
+		}
+	*/
 
 	respondWithJSON(w, http.StatusOK, video)
 }
@@ -148,6 +153,7 @@ func processVideoForFastStart(filePath string) (string, error) {
 	return outFilePath, nil
 }
 
+/*
 func generatePresignedURL(s3Client *s3.Client, bucket, key string, expireTime time.Duration) (string, error) {
 
 	// NewPresignClient(c *Client, optFns ...func(*PresignOptions)) *PresignClient
@@ -165,7 +171,9 @@ func generatePresignedURL(s3Client *s3.Client, bucket, key string, expireTime ti
 	}
 	return presignedRequest.URL, nil
 }
+*/
 
+/*
 func (cfg *apiConfig) dbVideoToSignedVideo(video database.Video) (database.Video, error) {
 	const delimiter = ","
 	if video.VideoURL == nil || !strings.Contains(*video.VideoURL, delimiter) {
@@ -184,3 +192,4 @@ func (cfg *apiConfig) dbVideoToSignedVideo(video database.Video) (database.Video
 	video.VideoURL = &presignedURL
 	return video, nil
 }
+*/
